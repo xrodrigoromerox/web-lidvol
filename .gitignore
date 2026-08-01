@@ -1,0 +1,9 @@
+# Configuración local del editor / sesiones de trabajo
+.claude/
+
+# Paquete generado para subir a Netlify/Hostinger (se regenera cuando haga falta)
+*.zip
+
+# Archivos temporales de Windows
+Thumbs.db
+desktop.ini
