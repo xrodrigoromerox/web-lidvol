@@ -276,20 +276,27 @@ h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; line-height: 1
   color: var(--cream);
   letter-spacing: 0.02em;
 }
-/* El logo actualizado ya incluye el nombre, por eso va solo y en horizontal */
 .nav__logo {
   width: auto;
   height: 40px;
-  max-width: 128px;
+  max-width: 108px;
   object-fit: contain;
   border-radius: 8px;
   background: #fff;
-  padding: 4px 7px;
+  padding: 4px 6px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
 }
-.nav__brand-txt { display: none; }
+.nav__brand-txt { display: flex; flex-direction: column; line-height: 1.05; }
+.nav__brand-txt small {
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cream-mute);
+}
 @media (min-width: 540px) {
-  .nav__logo { height: 44px; max-width: 142px; }
+  .nav__logo { height: 44px; max-width: 120px; }
 }
 
 .nav__links {
