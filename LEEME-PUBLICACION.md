@@ -15,9 +15,10 @@ Todos los precios están en **un solo archivo**: `lib/precios.js`.
   (Buscar y reemplazar en todos los archivos toma 1 minuto).
 
 ## Antes del lanzamiento público
-- ⚠️ **Testimonios**: los de la página de Inicio son CONTENIDO DE MUESTRA.
-  Reemplázalos en `index.html` (sección "TESTIMONIOS") por testimonios reales
-  de los primeros egresados. No publicar los de muestra como si fueran reales.
+- ✅ **Testimonios**: ya no hay contenido de muestra. Los visitantes envían el
+  suyo desde la web y solo se publica lo que el equipo aprueba.
+  Falta conectar la hoja de Google: ver **`LEEME-TESTIMONIOS.md`** (~15 minutos).
+  Mientras no esté conectada, el formulario envía los testimonios por WhatsApp.
 - **Videos de maquinaria pesada**: cuando existan, hay instrucciones marcadas con
   `TODO VIDEOS` dentro de `galeria.html` y `cursos.html`.
 

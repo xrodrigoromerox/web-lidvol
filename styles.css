@@ -827,6 +827,180 @@ h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; line-height: 1
 }
 .tsl-card .stars { color: var(--gold); letter-spacing: 0.1em; font-size: 0.8rem; margin-top: 0.2rem; }
 
+/* Los elementos ocultos con el atributo hidden deben quedar ocultos aunque
+   la clase les dé display (por ejemplo .tsl__track, que es flex). */
+[hidden] { display: none !important; }
+
+/* ---- Invitación a dejar un testimonio ---- */
+.tsl-cta {
+  margin-top: clamp(1.6rem, 4vw, 2.4rem);
+  text-align: center;
+}
+.tsl-cta .btn svg { width: 19px; height: 19px; }
+.tsl-cta__nota {
+  margin-top: 0.75rem;
+  font-size: 0.84rem;
+  color: var(--ink-mute);
+}
+.tsl-empty {
+  text-align: center;
+  max-width: 46ch;
+  margin-inline: auto;
+  color: var(--ink-soft);
+}
+
+/* ---- Cuadro para enviar un testimonio ---- */
+body.has-modal { overflow: hidden; }
+
+.tmodal {
+  position: fixed;
+  inset: 0;
+  z-index: 210;
+  display: grid;
+  place-items: center;
+  padding: clamp(0.8rem, 4vw, 2.2rem);
+}
+.tmodal__fondo {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 24, 41, 0.82);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+.tmodal__caja {
+  position: relative;
+  width: min(100%, 560px);
+  max-height: min(88vh, 780px);
+  overflow-y: auto;
+  background: var(--paper);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lift);
+  padding: clamp(1.5rem, 4vw, 2.4rem);
+  animation: tmodalIn 0.32s var(--ease-out) both;
+}
+@keyframes tmodalIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+.tmodal__cerrar {
+  position: absolute;
+  top: 0.85rem; right: 0.85rem;
+  width: 38px; height: 38px;
+  display: grid; place-items: center;
+  border: 0; border-radius: 50%;
+  background: var(--smoke);
+  color: var(--navy);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+.tmodal__cerrar svg { width: 18px; height: 18px; }
+.tmodal__cerrar:hover { background: var(--red); color: #fff; transform: scale(1.06); }
+
+.tmodal__titulo {
+  font-size: clamp(1.45rem, 3.4vw, 1.9rem);
+  font-weight: 800;
+  color: var(--navy);
+  margin: 0.6rem 0 0;
+}
+.tmodal__intro {
+  margin: 0.6rem 0 1.5rem;
+  font-size: 0.94rem;
+  color: var(--ink-soft);
+}
+
+/* Calificación con estrellas */
+.tstars-campo { border: 0; padding: 0; margin: 0 0 1rem; }
+.tstars-campo legend {
+  font-weight: 600; font-size: 0.9rem; color: var(--navy);
+  padding: 0; margin-bottom: 0.35rem;
+}
+.tstars { display: flex; gap: 0.3rem; }
+/* Se nombra .tstars .tstars__item para ganarle a la regla ".field label",
+   que si no impondría el tamaño de texto de las etiquetas normales. */
+.tstars .tstars__item {
+  position: relative;
+  font-size: 2rem;
+  line-height: 1;
+  color: rgba(14, 42, 71, 0.2);
+  cursor: pointer;
+  transition: color 0.15s, transform 0.15s;
+}
+.tstars__item input {
+  position: absolute; opacity: 0;
+  width: 100%; height: 100%; left: 0; top: 0;
+  margin: 0; cursor: pointer;
+}
+.tstars .tstars__item:hover { transform: scale(1.12); }
+/* main.js marca con .is-on la estrella elegida y todas las anteriores */
+.tstars .tstars__item.is-on { color: var(--gold); }
+.tstars__item:focus-within { outline: 2px solid var(--navy); outline-offset: 3px; border-radius: 4px; }
+
+/* Contador de caracteres */
+.tsl-contador {
+  font-size: 0.76rem;
+  color: var(--ink-mute);
+  justify-self: end;
+}
+.tsl-contador.is-corto { color: var(--red); }
+
+/* Casilla de autorización */
+.tcheck {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin-bottom: 0.4rem;
+  cursor: pointer;
+}
+.tcheck input {
+  flex: none;
+  width: 18px; height: 18px;
+  margin-top: 0.15rem;
+  accent-color: var(--navy);
+  cursor: pointer;
+}
+.err--check {
+  display: none;
+  font-size: 0.78rem;
+  color: var(--red);
+  margin-bottom: 0.8rem;
+}
+
+/* Trampa anti-spam: fuera de la vista pero accesible para los robots */
+.tsl-trampa {
+  position: absolute;
+  left: -9999px;
+  width: 1px; height: 1px;
+  overflow: hidden;
+}
+
+.tmodal__estado {
+  margin-top: 0.9rem;
+  font-size: 0.86rem;
+  text-align: center;
+}
+.tmodal__estado.is-error { color: var(--red); }
+
+/* Pantalla de agradecimiento */
+.tmodal__gracias { text-align: center; padding: 1rem 0 0.4rem; }
+.tmodal__check {
+  width: 62px; height: 62px;
+  margin: 0 auto 1.1rem;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: rgba(37, 211, 102, 0.14);
+  color: var(--wa-green);
+}
+.tmodal__check svg { width: 30px; height: 30px; }
+.tmodal__gracias h3 {
+  font-size: 1.32rem; font-weight: 800; color: var(--navy); margin: 0 0 0.6rem;
+}
+.tmodal__gracias p {
+  font-size: 0.94rem; color: var(--ink-soft); margin: 0 auto 1.5rem; max-width: 40ch;
+}
+
 /* =============================================================
    12. Programa de referidos
    ============================================================= */

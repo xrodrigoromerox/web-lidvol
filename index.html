@@ -367,71 +367,126 @@
     </section>
 
     <!-- ============================ TESTIMONIOS ============================ -->
-    <!-- ⚠️ CONTENIDO DE MUESTRA (brief §10): reemplazar por testimonios reales
-         de alumnos antes del lanzamiento público. -->
-    <section class="section" aria-label="Testimonios de alumnos">
+    <!-- Los testimonios se cargan desde la hoja de Google y solo aparecen los
+         APROBADOS. El visitante puede enviar el suyo con el botón de abajo.
+         Configuración: lib/manifest.js -> testimonios. Guía: LEEME-TESTIMONIOS.md -->
+    <section class="section" id="testimonios" aria-label="Testimonios de alumnos">
       <div class="container section-head section-head--center reveal">
         <p class="kicker">Testimonios</p>
         <h2>Lo que dicen nuestros alumnos</h2>
       </div>
 
-      <div class="tsl" data-tsl>
-        <div class="tsl__track">
-          <!-- Grupo 1 -->
-          <figure class="tsl-card">
-            <blockquote>“Nunca había tocado un volante y en dos semanas ya manejaba con confianza por el centro. El doble pedal del instructor me quitó todo el miedo.”</blockquote>
-            <figcaption>Alumna · Categoría P</figcaption>
-            <p class="stars" aria-label="5 estrellas">★★★★★</p>
-          </figure>
-          <figure class="tsl-card">
-            <blockquote>“El simulacro del examen fue igualito al del SEGIP. Aprobé a la primera.”</blockquote>
-            <figcaption>Alumno · Obtención de licencia</figcaption>
-            <p class="stars" aria-label="5 estrellas">★★★★★</p>
-          </figure>
-          <figure class="tsl-card">
-            <blockquote>“Hice el curso de retroexcavadora y la práctica fue en máquina real, no solo teoría. Con el certificado de horas conseguí trabajo en una constructora.”</blockquote>
-            <figcaption>Alumno · Categoría T</figcaption>
-            <p class="stars" aria-label="5 estrellas">★★★★★</p>
-          </figure>
-          <figure class="tsl-card">
-            <blockquote>“Inscribí a mi hijo de 17 con la autorización y ahora maneja mejor que yo. Muy profesionales y siempre responden el WhatsApp.”</blockquote>
-            <figcaption>Madre de alumno · Categoría JP</figcaption>
-            <p class="stars" aria-label="5 estrellas">★★★★★</p>
-          </figure>
-          <figure class="tsl-card">
-            <blockquote>“En el curso de mecánica aprendí a hacerle el mantenimiento a mi propio auto. La pasantía en Fénix Cars fue lo mejor.”</blockquote>
-            <figcaption>Alumno · Mecánica básica</figcaption>
-            <p class="stars" aria-label="5 estrellas">★★★★★</p>
-          </figure>
-          <!-- Grupo 2 (duplicado para el bucle continuo) -->
-          <figure class="tsl-card" aria-hidden="true">
-            <blockquote>“Nunca había tocado un volante y en dos semanas ya manejaba con confianza por el centro. El doble pedal del instructor me quitó todo el miedo.”</blockquote>
-            <figcaption>Alumna · Categoría P</figcaption>
-            <p class="stars">★★★★★</p>
-          </figure>
-          <figure class="tsl-card" aria-hidden="true">
-            <blockquote>“El simulacro del examen fue igualito al del SEGIP. Aprobé a la primera.”</blockquote>
-            <figcaption>Alumno · Obtención de licencia</figcaption>
-            <p class="stars">★★★★★</p>
-          </figure>
-          <figure class="tsl-card" aria-hidden="true">
-            <blockquote>“Hice el curso de retroexcavadora y la práctica fue en máquina real, no solo teoría. Con el certificado de horas conseguí trabajo en una constructora.”</blockquote>
-            <figcaption>Alumno · Categoría T</figcaption>
-            <p class="stars">★★★★★</p>
-          </figure>
-          <figure class="tsl-card" aria-hidden="true">
-            <blockquote>“Inscribí a mi hijo de 17 con la autorización y ahora maneja mejor que yo. Muy profesionales y siempre responden el WhatsApp.”</blockquote>
-            <figcaption>Madre de alumno · Categoría JP</figcaption>
-            <p class="stars">★★★★★</p>
-          </figure>
-          <figure class="tsl-card" aria-hidden="true">
-            <blockquote>“En el curso de mecánica aprendí a hacerle el mantenimiento a mi propio auto. La pasantía en Fénix Cars fue lo mejor.”</blockquote>
-            <figcaption>Alumno · Mecánica básica</figcaption>
-            <p class="stars">★★★★★</p>
-          </figure>
-        </div>
+      <!-- Carrusel: main.js lo llena con los testimonios aprobados -->
+      <div class="tsl" data-tsl hidden>
+        <div class="tsl__track" data-tsl-track></div>
+      </div>
+
+      <!-- Mientras no haya testimonios aprobados -->
+      <div class="container tsl-empty" data-tsl-empty hidden>
+        <p>Todavía no publicamos testimonios. Si hiciste tu curso con nosotros,
+           tu experiencia puede ser la primera que lean los futuros alumnos.</p>
+      </div>
+
+      <div class="container tsl-cta reveal">
+        <button type="button" class="btn btn--ghost-navy" data-tsl-open>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          Comparte tu experiencia
+        </button>
+        <p class="tsl-cta__nota">
+          Revisamos cada testimonio antes de publicarlo. No se publica nada sin autorización.
+        </p>
       </div>
     </section>
+
+    <!-- ================== MODAL: ENVIAR TESTIMONIO ================== -->
+    <div class="tmodal" data-tsl-modal hidden>
+      <div class="tmodal__fondo" data-tsl-close></div>
+
+      <div class="tmodal__caja" role="dialog" aria-modal="true" aria-labelledby="tmodal-titulo">
+        <button type="button" class="tmodal__cerrar" data-tsl-close aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+               stroke-linecap="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"></path>
+          </svg>
+        </button>
+
+        <p class="kicker">Tu opinión</p>
+        <h2 id="tmodal-titulo" class="tmodal__titulo">Comparte tu experiencia</h2>
+        <p class="tmodal__intro">
+          Contanos cómo te fue en tu curso. Nuestro equipo revisa cada mensaje y lo publica
+          en esta página si está todo en orden.
+        </p>
+
+        <form data-tsl-form novalidate>
+          <div class="field">
+            <label for="t-nombre">Tu nombre <small>(así aparecerá publicado)</small></label>
+            <input id="t-nombre" name="nombre" type="text" maxlength="60"
+                   autocomplete="name" required>
+            <span class="err">Escribe tu nombre.</span>
+          </div>
+
+          <div class="field">
+            <label for="t-curso">Curso que hiciste</label>
+            <select id="t-curso" name="curso" required>
+              <option value="">Elige una opción…</option>
+            </select>
+            <span class="err">Elige el curso que hiciste.</span>
+          </div>
+
+          <fieldset class="field tstars-campo">
+            <legend>Tu calificación</legend>
+            <div class="tstars" data-tsl-estrellas role="radiogroup"
+                 aria-label="Calificación en estrellas"></div>
+            <span class="err">Elige una calificación.</span>
+          </fieldset>
+
+          <div class="field">
+            <label for="t-texto">Tu testimonio</label>
+            <textarea id="t-texto" name="texto" rows="4" required
+                      placeholder="Por ejemplo: cómo llegaste, qué aprendiste y cómo te sentiste manejando."></textarea>
+            <span class="tsl-contador" data-tsl-contador aria-live="polite"></span>
+            <span class="err" data-tsl-err-texto>Escribe un poco más sobre tu experiencia.</span>
+          </div>
+
+          <label class="tcheck">
+            <input type="checkbox" name="consentimiento" value="si" required>
+            <span>Autorizo a Autoescuela Lidvol a publicar mi nombre y mi comentario en
+                  su sitio web y redes sociales.</span>
+          </label>
+          <span class="err err--check">Necesitamos tu autorización para poder publicarlo.</span>
+
+          <!-- Trampa anti-spam: las personas no la ven, los robots sí la llenan -->
+          <div class="tsl-trampa" aria-hidden="true">
+            <label>No llenar este campo
+              <input type="text" name="sitio_web" tabindex="-1" autocomplete="off">
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--block" data-tsl-enviar>
+            Enviar testimonio
+          </button>
+
+          <p class="tmodal__estado" data-tsl-estado role="status" aria-live="polite"></p>
+        </form>
+
+        <!-- Pantalla de agradecimiento -->
+        <div class="tmodal__gracias" data-tsl-gracias hidden>
+          <div class="tmodal__check" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6 9 17l-5-5"></path>
+            </svg>
+          </div>
+          <h3>¡Gracias por escribirnos!</h3>
+          <p>Tu testimonio llegó bien. Lo vamos a revisar y, si está todo en orden,
+             aparecerá publicado en esta página.</p>
+          <button type="button" class="btn btn--ghost-navy" data-tsl-close>Cerrar</button>
+        </div>
+      </div>
+    </div>
 
     <!-- ============================ REFERIDOS ============================ -->
     <section class="section section--paper" aria-label="Programa de referidos">

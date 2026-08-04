@@ -348,6 +348,311 @@
   }
 
   /* -----------------------------------------------------------
+     Testimonios de alumnos
+     - Muestra en el carrusel solo los testimonios ya APROBADOS.
+     - Permite a cualquier visitante enviar el suyo, que queda pendiente
+       de revisión hasta que el equipo lo apruebe.
+     Configuración: lib/manifest.js -> testimonios
+     ----------------------------------------------------------- */
+  function initTestimonios() {
+    var seccion = $("[data-tsl]");
+    var modal = $("[data-tsl-modal]");
+    if (!seccion && !modal) return;
+
+    var cfg = DATA.testimonios || {};
+    var minCar = cfg.minCaracteres || 30;
+    var maxCar = cfg.maxCaracteres || 400;
+
+    /* ---------- Pintar el carrusel ---------- */
+
+    function repetir(txt, veces) {
+      var salida = "";
+      for (var i = 0; i < veces; i++) salida += txt;
+      return salida;
+    }
+
+    /* Se construye con textContent (nunca innerHTML): el texto viene de
+       formularios públicos y así no puede inyectar HTML en la página. */
+    function tarjeta(t, esCopia) {
+      var fig = document.createElement("figure");
+      fig.className = "tsl-card";
+      if (esCopia) fig.setAttribute("aria-hidden", "true");
+
+      var cita = document.createElement("blockquote");
+      cita.textContent = "“" + String(t.texto || "") + "”";
+      fig.appendChild(cita);
+
+      var pie = document.createElement("figcaption");
+      var nombre = String(t.nombre || "Alumno");
+      pie.textContent = t.curso ? nombre + " · " + String(t.curso) : nombre;
+      fig.appendChild(pie);
+
+      var n = Math.max(1, Math.min(5, parseInt(t.estrellas, 10) || 5));
+      var estrellas = document.createElement("p");
+      estrellas.className = "stars";
+      estrellas.textContent = repetir("★", n) + repetir("☆", 5 - n);
+      if (!esCopia) estrellas.setAttribute("aria-label", n + " de 5 estrellas");
+      fig.appendChild(estrellas);
+
+      return fig;
+    }
+
+    function pintar(lista) {
+      var track = $("[data-tsl-track]");
+      var vacio = $("[data-tsl-empty]");
+      if (!track) return;
+
+      if (!lista || !lista.length) {
+        if (seccion) seccion.hidden = true;
+        if (vacio) vacio.hidden = false;
+        return;
+      }
+
+      /* El carrusel repite el contenido dos veces para que el bucle sea
+         continuo (la animación desplaza justo el 50% del ancho). Si hay
+         pocos testimonios se repiten hasta llenar la pantalla. */
+      var base = lista.slice();
+      while (base.length < 4) base = base.concat(lista);
+
+      track.textContent = "";
+      for (var copia = 0; copia < 2; copia++) {
+        for (var i = 0; i < base.length; i++) {
+          track.appendChild(tarjeta(base[i], copia === 1));
+        }
+      }
+
+      if (vacio) vacio.hidden = true;
+      if (seccion) seccion.hidden = false;
+    }
+
+    function cargarAprobados() {
+      /* Sin hoja configurada todavía (o navegador muy antiguo): se muestra el
+         mensaje de sección vacía en vez de dejar el hueco sin explicación. */
+      if (!cfg.endpoint || !window.fetch) { pintar([]); return; }
+
+      var sep = cfg.endpoint.indexOf("?") >= 0 ? "&" : "?";
+      var url = cfg.endpoint + sep + "accion=listar&max=" + (cfg.maxEnPagina || 12);
+
+      fetch(url)
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (!data || !data.ok || !data.testimonios) return;
+          pintar(data.testimonios.slice(0, cfg.maxEnPagina || 12));
+        })
+        .catch(function () {
+          /* Sin conexión con la hoja: se muestra el mensaje de sección vacía
+             en vez de romper la página. */
+          pintar([]);
+        });
+    }
+
+    cargarAprobados();
+
+    /* ---------- Formulario para enviar un testimonio ---------- */
+
+    if (!modal) return;
+
+    var form = $("[data-tsl-form]", modal);
+    var estado = $("[data-tsl-estado]", modal);
+    var gracias = $("[data-tsl-gracias]", modal);
+    var contador = $("[data-tsl-contador]", modal);
+    var areaTexto = $("#t-texto", modal);
+    var selCurso = $("#t-curso", modal);
+    var cajaEstrellas = $("[data-tsl-estrellas]", modal);
+    var ultimoFoco = null;
+
+    // Opciones del desplegable de cursos
+    (cfg.cursos || []).forEach(function (nombre) {
+      var op = document.createElement("option");
+      op.value = nombre;
+      op.textContent = nombre;
+      selCurso.appendChild(op);
+    });
+
+    // Estrellas: cinco radios accesibles, 5 marcada por defecto
+    for (var e = 1; e <= 5; e++) {
+      var id = "t-estrella-" + e;
+      var lab = document.createElement("label");
+      lab.className = "tstars__item";
+      lab.setAttribute("for", id);
+
+      var radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = "estrellas";
+      radio.id = id;
+      radio.value = String(e);
+      if (e === 5) radio.checked = true;
+
+      var icono = document.createElement("span");
+      icono.setAttribute("aria-hidden", "true");
+      icono.textContent = "★";
+
+      var texto = document.createElement("span");
+      texto.className = "sr-only";
+      texto.textContent = e + (e === 1 ? " estrella" : " estrellas");
+
+      lab.appendChild(radio);
+      lab.appendChild(icono);
+      lab.appendChild(texto);
+      cajaEstrellas.appendChild(lab);
+    }
+
+    // Pintar de dorado la estrella elegida y todas las anteriores
+    function pintarEstrellas() {
+      var marcada = $("input[name='estrellas']:checked", cajaEstrellas);
+      var hasta = marcada ? parseInt(marcada.value, 10) : 0;
+      $$(".tstars__item", cajaEstrellas).forEach(function (lab, i) {
+        lab.classList.toggle("is-on", i < hasta);
+      });
+    }
+    cajaEstrellas.addEventListener("change", pintarEstrellas);
+    pintarEstrellas();
+
+    function actualizarContador() {
+      if (!contador || !areaTexto) return;
+      var n = areaTexto.value.trim().length;
+      contador.textContent = n + " / " + maxCar;
+      contador.classList.toggle("is-corto", n > 0 && n < minCar);
+    }
+    if (areaTexto) {
+      areaTexto.setAttribute("maxlength", String(maxCar));
+      areaTexto.addEventListener("input", actualizarContador);
+      actualizarContador();
+    }
+
+    function abrir() {
+      ultimoFoco = document.activeElement;
+      modal.hidden = false;
+      document.body.classList.add("has-modal");
+      var primero = $("#t-nombre", modal);
+      if (primero) primero.focus();
+    }
+
+    function cerrar() {
+      modal.hidden = true;
+      document.body.classList.remove("has-modal");
+      if (ultimoFoco && ultimoFoco.focus) ultimoFoco.focus();
+    }
+
+    $$("[data-tsl-open]").forEach(function (b) {
+      b.addEventListener("click", abrir);
+    });
+    $$("[data-tsl-close]", modal).forEach(function (b) {
+      b.addEventListener("click", cerrar);
+    });
+
+    document.addEventListener("keydown", function (ev) {
+      if (modal.hidden) return;
+      if (ev.key === "Escape") { cerrar(); return; }
+
+      // Mantener el tabulador dentro del cuadro mientras esté abierto
+      if (ev.key !== "Tab") return;
+      var foco = $$("a[href], button, input, select, textarea", modal).filter(function (el) {
+        return !el.disabled && el.offsetParent !== null;
+      });
+      if (!foco.length) return;
+      var primero = foco[0];
+      var ultimo = foco[foco.length - 1];
+      if (ev.shiftKey && document.activeElement === primero) {
+        ev.preventDefault(); ultimo.focus();
+      } else if (!ev.shiftKey && document.activeElement === ultimo) {
+        ev.preventDefault(); primero.focus();
+      }
+    });
+
+    function marcarError(campo, hayError) {
+      var cont = campo.closest(".field");
+      if (cont) cont.classList.toggle("has-error", hayError);
+      return !hayError;
+    }
+
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      if (estado) { estado.textContent = ""; estado.className = "tmodal__estado"; }
+
+      var nombre = form.nombre.value.trim();
+      var curso = selCurso.value;
+      var texto = areaTexto.value.trim();
+      var consiente = form.consentimiento.checked;
+      var marcada = $("input[name='estrellas']:checked", modal);
+      var estrellas = marcada ? parseInt(marcada.value, 10) : 5;
+
+      var ok = true;
+      ok = marcarError(form.nombre, nombre.length < 2) && ok;
+      ok = marcarError(selCurso, !curso) && ok;
+      ok = marcarError(areaTexto, texto.length < minCar) && ok;
+
+      var errCheck = $(".err--check", modal);
+      if (errCheck) errCheck.style.display = consiente ? "none" : "block";
+      if (!consiente) ok = false;
+
+      if (!ok) {
+        var fallo = $(".field.has-error input, .field.has-error select, .field.has-error textarea", modal);
+        if (fallo) fallo.focus();
+        return;
+      }
+
+      var datos = {
+        nombre: nombre,
+        curso: curso,
+        estrellas: estrellas,
+        texto: texto,
+        consentimiento: true,
+        sitio_web: form.sitio_web.value,   // trampa anti-spam
+        origen: location.hostname
+      };
+
+      var boton = $("[data-tsl-enviar]", form);
+
+      /* Sin hoja configurada todavía: el testimonio se envía por WhatsApp
+         para que no se pierda. Igual queda pendiente de aprobación manual. */
+      if (!cfg.endpoint || !window.fetch) {
+        var lineas = [
+          "Hola Lidvol 👋 Quiero dejar mi testimonio para la página web:",
+          "",
+          "👤 Nombre: " + nombre,
+          "📚 Curso: " + curso,
+          "⭐ Calificación: " + estrellas + "/5",
+          "",
+          "💬 " + texto,
+          "",
+          "Autorizo que se publique en su sitio web. ✅"
+        ];
+        var num = (DATA.marca && DATA.marca.whatsappNumero) || "59169309068";
+        window.open("https://wa.me/" + num + "?text=" + encodeURIComponent(lineas.join("\n")),
+          "_blank", "noopener");
+        form.hidden = true;
+        if (gracias) gracias.hidden = false;
+        return;
+      }
+
+      if (boton) { boton.disabled = true; boton.textContent = "Enviando…"; }
+
+      /* Se envía como text/plain a propósito: así el navegador no hace la
+         petición previa (preflight) que Apps Script no sabe responder. */
+      fetch(cfg.endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(datos)
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          if (!res || !res.ok) throw new Error((res && res.error) || "error");
+          form.hidden = true;
+          if (gracias) gracias.hidden = false;
+        })
+        .catch(function () {
+          if (boton) { boton.disabled = false; boton.textContent = "Enviar testimonio"; }
+          if (estado) {
+            estado.className = "tmodal__estado is-error";
+            estado.textContent = "No pudimos enviar tu testimonio. Revisa tu conexión " +
+              "e inténtalo de nuevo, o escríbenos por WhatsApp.";
+          }
+        });
+    });
+  }
+
+  /* -----------------------------------------------------------
      Año dinámico del footer
      ----------------------------------------------------------- */
   function initYear() {
@@ -366,6 +671,7 @@
     safe(initLightbox, "initLightbox");
     safe(initGalleryFilters, "initGalleryFilters");
     safe(initEnrollForm, "initEnrollForm");
+    safe(initTestimonios, "initTestimonios");
     safe(initYear, "initYear");
     document.documentElement.classList.add("is-ready");
   }
