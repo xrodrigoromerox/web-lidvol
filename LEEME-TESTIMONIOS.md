@@ -130,7 +130,9 @@ publicación de su nombre y comentario. Sin marcarla no se puede enviar, y el
 programa además vuelve a verificarlo antes de guardar.
 
 **¿Se pueden cambiar los cursos del desplegable?**
-Sí, en `lib/manifest.js`, dentro de `testimonios.cursos`.
+No hace falta tocarlo: la lista sale sola de `lib/precios.js`, el mismo archivo
+que usa la página de Inscripción. Si agregan o quitan un curso ahí, el
+desplegable de testimonios se actualiza solo.
 
 **¿Cuántos testimonios se muestran?**
 Los 12 más recientes que estén aprobados. Se cambia con `maxEnPagina` en

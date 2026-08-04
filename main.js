@@ -371,6 +371,15 @@
       return salida;
     }
 
+    /* En la tarjeta el curso se muestra sin el paréntesis explicativo, para
+       que el pie no quede larguísimo. Ejemplo:
+         guardado: "Categoría P — Particular (autos, vagonetas, jeeps)"
+         mostrado: "Categoría P — Particular"
+       En la hoja de Google siempre queda el nombre completo. */
+    function nombreCorto(curso) {
+      return String(curso || "").replace(/\s*\([^)]*\)\s*$/, "").trim();
+    }
+
     /* Se construye con textContent (nunca innerHTML): el texto viene de
        formularios públicos y así no puede inyectar HTML en la página. */
     function tarjeta(t, esCopia) {
@@ -384,7 +393,7 @@
 
       var pie = document.createElement("figcaption");
       var nombre = String(t.nombre || "Alumno");
-      pie.textContent = t.curso ? nombre + " · " + String(t.curso) : nombre;
+      pie.textContent = t.curso ? nombre + " · " + nombreCorto(t.curso) : nombre;
       fig.appendChild(pie);
 
       var n = Math.max(1, Math.min(5, parseInt(t.estrellas, 10) || 5));
@@ -461,13 +470,39 @@
     var cajaEstrellas = $("[data-tsl-estrellas]", modal);
     var ultimoFoco = null;
 
-    // Opciones del desplegable de cursos
-    (cfg.cursos || []).forEach(function (nombre) {
-      var op = document.createElement("option");
-      op.value = nombre;
-      op.textContent = nombre;
-      selCurso.appendChild(op);
-    });
+    /* Opciones del desplegable de cursos: se arman con la lista de
+       lib/precios.js, la misma que usa la página de Inscripción, para que
+       las dos nunca queden desincronizadas. */
+    function llenarCursos() {
+      var precios = DATA.PRECIOS || {};
+      var claves = Object.keys(precios);
+
+      (cfg.gruposCursos || []).forEach(function (grupo) {
+        var delGrupo = claves.filter(function (clave) {
+          return clave.indexOf(grupo.prefijo) === 0;
+        });
+        if (!delGrupo.length) return;
+
+        var og = document.createElement("optgroup");
+        og.label = grupo.etiqueta;
+        delGrupo.forEach(function (clave) {
+          var op = document.createElement("option");
+          // Se guarda el nombre legible, no la clave interna
+          op.value = precios[clave].nombre;
+          op.textContent = precios[clave].nombre;
+          og.appendChild(op);
+        });
+        selCurso.appendChild(og);
+      });
+
+      if (cfg.incluirOtro !== false) {
+        var otro = document.createElement("option");
+        otro.value = "Otro";
+        otro.textContent = "Otro";
+        selCurso.appendChild(otro);
+      }
+    }
+    llenarCursos();
 
     // Estrellas: cinco radios accesibles, 5 marcada por defecto
     for (var e = 1; e <= 5; e++) {
